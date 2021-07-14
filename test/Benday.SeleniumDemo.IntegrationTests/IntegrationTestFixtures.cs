@@ -32,15 +32,15 @@ namespace Benday.SeleniumDemo.IntegrationTests
             }
         }
 
-        private LocalServerFactory<Startup> _SystemUnderTest;
-        public LocalServerFactory<Startup> SystemUnderTest
+        private CustomWebApplicationFactory<Startup> _SystemUnderTest;
+        public CustomWebApplicationFactory<Startup> SystemUnderTest
         {
             get
             {
                 if (_SystemUnderTest == null)
                 {
                     // _SystemUnderTest = new WebApplicationFactory<Startup>();
-                    _SystemUnderTest = new LocalServerFactory<Startup>();
+                    _SystemUnderTest = new CustomWebApplicationFactory<Startup>();
                 }
 
                 return _SystemUnderTest;
@@ -128,7 +128,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
         private void InitializeWithTypeReplacements()
         {
-            _SystemUnderTest = new LocalServerFactory<Startup>(addDevelopmentConfigurations: builder =>
+            _SystemUnderTest = new CustomWebApplicationFactory<Startup>(addDevelopmentConfigurations: builder =>
             {
                 builder.ConfigureTestServices(services =>
                 {

@@ -8,14 +8,14 @@ using System.Linq;
 
 namespace Benday.SeleniumDemo.IntegrationTests
 {
-    public class LocalServerFactory<TStartup> : WebApplicationFactory<TStartup>
+    public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup>
     where TStartup : class
     {
         private readonly string _baseAddress = "https://localhost";
         private IWebHost _webHost;
         private Action<IWebHostBuilder> _addDevelopmentConfigs;
 
-        public LocalServerFactory(Action<IWebHostBuilder> addDevelopmentConfigurations = null)
+        public CustomWebApplicationFactory(Action<IWebHostBuilder> addDevelopmentConfigurations = null)
         {
             if (addDevelopmentConfigurations != null)
             {
