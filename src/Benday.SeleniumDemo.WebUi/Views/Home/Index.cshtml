@@ -6,3 +6,27 @@
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+<div id="divTextThatIsAlwaysThere">
+    text that should always be there
+</div>
+<div id="divForButtons">
+    <button onclick="showHiddenDiv()" id="buttonShowHiddenDiv">show hidden div</button>
+</div>
+<div id="divHiddenDiv" style="display: none">
+    this shouldn't be visible unless the button was pressed
+
+    <button onclick="hideHiddenDiv()" id="buttonHideHiddenDiv">hide hidden div</button>
+</div>
+<script>
+    function showHiddenDiv() {
+        let div = document.getElementById('divHiddenDiv');
+
+        div.style = "display: block";
+    }
+
+    function hideHiddenDiv() {
+        let div = document.getElementById('divHiddenDiv');
+
+        div.style = "display: none";
+    }
+</script>
