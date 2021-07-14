@@ -20,14 +20,24 @@ namespace Benday.SeleniumDemo.IntegrationTests
             _SystemUnderTest = null;
         }
 
-        private WebApplicationFactory<Startup> _SystemUnderTest;
-        public WebApplicationFactory<Startup> SystemUnderTest
+        [TestCleanup]
+        public void OnTestCleanup()
+        {
+            if (_SystemUnderTest != null)
+            {
+                _SystemUnderTest.Dispose();
+            }
+        }
+
+        private LocalServerFactory<Startup> _SystemUnderTest;
+        public LocalServerFactory<Startup> SystemUnderTest
         {
             get
             {
                 if (_SystemUnderTest == null)
                 {
-                    _SystemUnderTest = new WebApplicationFactory<Startup>();
+                    // _SystemUnderTest = new WebApplicationFactory<Startup>();
+                    _SystemUnderTest = new LocalServerFactory<Startup>();
                 }
 
                 return _SystemUnderTest;
@@ -89,10 +99,9 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
         private string GetFullUrl(string url)
         {
-            var baseAddr = SystemUnderTest.Server.BaseAddress;
-            var uri = new Uri(baseAddr, url);
+            var baseAddr = SystemUnderTest.RootUri;
 
-            return uri.AbsoluteUri;
+            return $"{baseAddr}/{url}";
         }
     }
 }
