@@ -139,7 +139,8 @@ namespace Benday.SeleniumDemo.IntegrationTests
             {
                 if (_scope == null)
                 {
-                    var scopeFactory = _systemUnderTest.Services.GetRequiredService<IServiceScopeFactory>();
+                    // var scopeFactory = _systemUnderTest.Services.GetRequiredService<IServiceScopeFactory>();
+                    var scopeFactory = _systemUnderTest.TestServer.Services.GetRequiredService<IServiceScopeFactory>();
 
                     _scope = scopeFactory.CreateScope();
                 }
@@ -157,6 +158,18 @@ namespace Benday.SeleniumDemo.IntegrationTests
             return returnValue;
         }
 
+        private AnotherUsefulService _instance;
+
+        private AnotherUsefulService GetInstanceOfAnotherUsefulService(IServiceProvider arg)
+        {
+            if (_instance == null)
+            {
+                _instance = new AnotherUsefulService();
+            }
+
+            return _instance;
+        }
+
         private void InitializeWithTypeReplacements()
         {
             _systemUnderTest = new CustomWebApplicationFactory<Startup>(addDevelopmentConfigurations: builder =>
@@ -171,9 +184,11 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
                     AssertTypeIsNotRegistered<IAnotherUsefulService>(services);
 
-                    services.AddSingleton<IAnotherUsefulService, AnotherUsefulService>();
+                    services.AddSingleton<IAnotherUsefulService, AnotherUsefulService>(GetInstanceOfAnotherUsefulService);
                 });
             });
+
+            Console.WriteLine($"InitializeWithTypeReplacements(): TestServer is null = {(_systemUnderTest.TestServer == null)}");
         }
 
         private static void AssertTypeIsRegistered<T>(IServiceCollection services)

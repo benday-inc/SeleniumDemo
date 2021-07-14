@@ -17,6 +17,8 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
         public CustomWebApplicationFactory(Action<IWebHostBuilder> addDevelopmentConfigurations = null)
         {
+            Console.WriteLine($"CustomWebApplicationFactory.ctor starting...");
+
             if (addDevelopmentConfigurations != null)
             {
                 _addDevelopmentConfigs = addDevelopmentConfigurations;
@@ -24,24 +26,64 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
             ClientOptions.BaseAddress = new Uri(_baseAddress);
 
+            Console.WriteLine($"CustomWebApplicationFactory.ctor calling CreateServer()...");
+
             CreateServer(CreateWebHostBuilder());
+
+            Console.WriteLine($"CustomWebApplicationFactory.ctor exiting...");
         }
         public string RootUri { get; private set; }
+
+        public TestServer TestServer { get; private set; }
+
         protected override TestServer CreateServer(IWebHostBuilder builder)
         {
+            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() starting...");
+
+            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() calling builder.Build()...");
             _webHost = builder.Build();
+
+            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() calling webhost.start()...");
             _webHost.Start();
+
+            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() getting addresses from webhost...");
             RootUri = _webHost.ServerFeatures.Get<IServerAddressesFeature>().Addresses.LastOrDefault();
-            // not used but needed in the CreateServer method logic
-            return new TestServer(new WebHostBuilder().UseStartup<TStartup>());
+            TestServer returnValue = InitializeTestServer();
+
+            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() exiting...");
+
+            return returnValue;
+        }
+
+        private TestServer InitializeTestServer()
+        {
+            Console.WriteLine($"CustomWebApplicationFactory.InitializeTestServer() creating instance of test server...");
+
+            var builder = new WebHostBuilder().UseStartup<TStartup>();
+
+            Console.WriteLine($"CustomWebApplicationFactory.InitializeTestServer() invoking add dev config...");
+            _addDevelopmentConfigs?.Invoke(builder);
+            Console.WriteLine($"CustomWebApplicationFactory.InitializeTestServer() invoked add dev config...");
+
+            var returnValue = new TestServer(builder);
+            // var returnValue = new TestServer(builder.UseStartup<TStartup>());
+
+            TestServer = returnValue;
+            return returnValue;
         }
 
         protected override IWebHostBuilder CreateWebHostBuilder()
         {
+            Console.WriteLine($"CustomWebApplicationFactory.CreateWebHostBuilder() starting...");
+
             var builder = WebHost.CreateDefaultBuilder(Array.Empty<string>());
             builder.UseStartup<TStartup>();
 
+            Console.WriteLine($"CustomWebApplicationFactory.CreateWebHostBuilder() invoking add dev config...");
             _addDevelopmentConfigs?.Invoke(builder);
+            Console.WriteLine($"CustomWebApplicationFactory.CreateWebHostBuilder() invoked add dev config...");
+
+            Console.WriteLine($"CustomWebApplicationFactory.CreateWebHostBuilder() starting...");
 
             return builder;
         }        
