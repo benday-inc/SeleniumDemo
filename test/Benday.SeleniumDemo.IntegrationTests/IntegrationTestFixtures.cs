@@ -1,6 +1,9 @@
+using Benday.SeleniumDemo.Api;
 using Benday.SeleniumDemo.WebUi;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Edge.SeleniumTools;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -68,7 +71,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task CallHomePage_UsingSeleniumAndWebApplicationFactory()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-        {    
+        {
             var expectedText = "text that should always be there";
 
             var client = SystemUnderTest.CreateClient();
@@ -89,13 +92,61 @@ namespace Benday.SeleniumDemo.IntegrationTests
             driver.Navigate().GoToUrl(fullyQualifiedUrl);
 
             // assert
-            var divThatShouldExistAlways = driver.FindElement(By.Id("divTextThatIsAlwaysThere"));
+            AssertDivExistsAndContainsText(expectedText, driver, "divTextThatIsAlwaysThere");            
+        }
 
-            Assert.IsNotNull(divThatShouldExistAlways, "div should not be null");
-            Assert.IsTrue(divThatShouldExistAlways.Displayed, "div should be displayed");
-            Assert.IsTrue(divThatShouldExistAlways.Enabled, "div should be enabled");
+        [TestMethod]
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task CallHomePage_UsingSeleniumAndWebApplicationFactory_WithTypeReplacements()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+            InitializeWithTypeReplacements();
 
-            Assert.IsTrue(divThatShouldExistAlways.Text.Contains(expectedText), "div should contain expected text");            
+            var expectedText = "text that should always be there";
+
+            var client = SystemUnderTest.CreateClient();
+
+            var url = "home/index";
+            var fullyQualifiedUrl = GetFullUrl(url);
+
+            var driverOptions = new EdgeOptions();
+            driverOptions.UseChromium = true;
+
+            driverOptions.AddArgument("headless");
+
+            // using var driver = new EdgeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), driverOptions);
+            using var driver = new EdgeDriver(driverOptions);
+
+            // act
+            Console.WriteLine($"Navigating to '{fullyQualifiedUrl}...'");
+            driver.Navigate().GoToUrl(fullyQualifiedUrl);
+
+            // assert
+            AssertDivExistsAndContainsText(expectedText, driver, "divTextThatIsAlwaysThere");
+            AssertDivExistsAndContainsText("FAKE VALUE", driver, "divUsefulServiceValue");
+        }
+
+        private void InitializeWithTypeReplacements()
+        {
+            _SystemUnderTest = new LocalServerFactory<Startup>(addDevelopmentConfigurations: builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    services.AddTransient<IUsefulService, FakeUsefulService>();
+                });
+            });
+        }
+
+        private static void AssertDivExistsAndContainsText(string expectedText, EdgeDriver driver, string id)
+        {
+            var divThatShouldExistAlways = driver.FindElement(By.Id(id));
+
+            Assert.IsNotNull(divThatShouldExistAlways, $"div '{id}' should not be null");
+            Assert.IsTrue(divThatShouldExistAlways.Displayed, $"div '{id}' should be displayed");
+            Assert.IsTrue(divThatShouldExistAlways.Enabled, $"div '{id}' should be enabled");
+
+            Assert.IsTrue(divThatShouldExistAlways.Text.Contains(expectedText), 
+                $"div '{id}' should contain expected text");
         }
 
         private string GetFullUrl(string url)

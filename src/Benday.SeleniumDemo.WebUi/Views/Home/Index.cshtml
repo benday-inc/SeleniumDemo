@@ -1,4 +1,6 @@
-﻿@{
+﻿
+@inject Benday.SeleniumDemo.Api.IUsefulService _usefulService;
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -16,6 +18,9 @@
     this shouldn't be visible unless the button was pressed
 
     <button onclick="hideHiddenDiv()" id="buttonHideHiddenDiv">hide hidden div</button>
+</div>
+<div id="divUsefulServiceValue">
+    @_usefulService.UsefulValue
 </div>
 <script>
     function showHiddenDiv() {

@@ -13,11 +13,17 @@ namespace Benday.SeleniumDemo.IntegrationTests
     {
         private readonly string _baseAddress = "https://localhost";
         private IWebHost _webHost;
+        private Action<IWebHostBuilder> _addDevelopmentConfigs;
 
-        public LocalServerFactory()
+        public LocalServerFactory(Action<IWebHostBuilder> addDevelopmentConfigurations = null)
         {
+            if (addDevelopmentConfigurations != null)
+            {
+                _addDevelopmentConfigs = addDevelopmentConfigurations;
+            }
+
             ClientOptions.BaseAddress = new Uri(_baseAddress);
-            
+
             CreateServer(CreateWebHostBuilder());
         }
         public string RootUri { get; private set; }
@@ -29,12 +35,16 @@ namespace Benday.SeleniumDemo.IntegrationTests
             // not used but needed in the CreateServer method logic
             return new TestServer(new WebHostBuilder().UseStartup<TStartup>());
         }
+
         protected override IWebHostBuilder CreateWebHostBuilder()
         {
             var builder = WebHost.CreateDefaultBuilder(Array.Empty<string>());
             builder.UseStartup<TStartup>();
+
+            _addDevelopmentConfigs?.Invoke(builder);
+
             return builder;
-        }
+        }        
 
         protected override void Dispose(bool disposing)
         {
