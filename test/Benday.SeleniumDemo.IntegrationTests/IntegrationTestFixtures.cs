@@ -85,6 +85,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
             using var driver = new EdgeDriver(driverOptions);
 
             // act
+            Console.WriteLine($"Navigating to '{fullyQualifiedUrl}...'");
             driver.Navigate().GoToUrl(fullyQualifiedUrl);
 
             // assert

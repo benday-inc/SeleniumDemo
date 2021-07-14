@@ -11,20 +11,21 @@ namespace Benday.SeleniumDemo.IntegrationTests
     public class LocalServerFactory<TStartup> : WebApplicationFactory<TStartup>
     where TStartup : class
     {
-        private const string _LocalhostBaseAddress = "https://localhost";
-        private IWebHost _host;
+        private readonly string _baseAddress = "https://localhost";
+        private IWebHost _webHost;
+
         public LocalServerFactory()
         {
-            ClientOptions.BaseAddress = new Uri(_LocalhostBaseAddress);
-            // Breaking change while migrating from 2.2 to 3.1, TestServer was not called anymore
+            ClientOptions.BaseAddress = new Uri(_baseAddress);
+            
             CreateServer(CreateWebHostBuilder());
         }
         public string RootUri { get; private set; }
         protected override TestServer CreateServer(IWebHostBuilder builder)
         {
-            _host = builder.Build();
-            _host.Start();
-            RootUri = _host.ServerFeatures.Get<IServerAddressesFeature>().Addresses.LastOrDefault();
+            _webHost = builder.Build();
+            _webHost.Start();
+            RootUri = _webHost.ServerFeatures.Get<IServerAddressesFeature>().Addresses.LastOrDefault();
             // not used but needed in the CreateServer method logic
             return new TestServer(new WebHostBuilder().UseStartup<TStartup>());
         }
@@ -40,7 +41,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
             base.Dispose(disposing);
             if (disposing)
             {
-                _host?.Dispose();
+                _webHost?.Dispose();
             }
         }
     }
