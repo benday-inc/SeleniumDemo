@@ -7,14 +7,14 @@ namespace Benday.SeleniumDemo.Api
 
         public AnotherUsefulService()
         {
-            Prefix = "bingbong";
+            ReturnValue = "bingbong";
         }
 
-        public string Prefix { get; set; }
+        public string ReturnValue { get; set; }
 
         public string GetMessage()
         {
-            return $"{Prefix} - {DateTime.Now.ToString()}";
+            return $"{ReturnValue}";
         }
     }
 }

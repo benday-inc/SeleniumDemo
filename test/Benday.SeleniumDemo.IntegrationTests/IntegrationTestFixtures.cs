@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Edge.SeleniumTools;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -11,6 +12,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Benday.SeleniumDemo.IntegrationTests
 {
@@ -20,30 +22,29 @@ namespace Benday.SeleniumDemo.IntegrationTests
         [TestInitialize]
         public void OnTestInitialize()
         {
-            _SystemUnderTest = null;
+            _systemUnderTest = null;
+            _scope = null;
         }
 
         [TestCleanup]
         public void OnTestCleanup()
         {
-            if (_SystemUnderTest != null)
-            {
-                _SystemUnderTest.Dispose();
-            }
+            _systemUnderTest?.Dispose();
+            _scope?.Dispose();
         }
 
-        private CustomWebApplicationFactory<Startup> _SystemUnderTest;
+        private CustomWebApplicationFactory<Startup> _systemUnderTest;
         public CustomWebApplicationFactory<Startup> SystemUnderTest
         {
             get
             {
-                if (_SystemUnderTest == null)
+                if (_systemUnderTest == null)
                 {
                     // _SystemUnderTest = new WebApplicationFactory<Startup>();
-                    _SystemUnderTest = new CustomWebApplicationFactory<Startup>();
+                    _systemUnderTest = new CustomWebApplicationFactory<Startup>();
                 }
 
-                return _SystemUnderTest;
+                return _systemUnderTest;
             }
         }
 
@@ -102,6 +103,10 @@ namespace Benday.SeleniumDemo.IntegrationTests
         {
             InitializeWithTypeReplacements();
 
+            var expectedMessage = "testing";
+            var service = CreateInstance<IAnotherUsefulService>();
+            service.ReturnValue = expectedMessage;
+
             var expectedText = "text that should always be there";
 
             var client = SystemUnderTest.CreateClient();
@@ -124,29 +129,91 @@ namespace Benday.SeleniumDemo.IntegrationTests
             // assert
             AssertDivExistsAndContainsText(expectedText, driver, "divTextThatIsAlwaysThere");
             AssertDivExistsAndContainsText("FAKE VALUE", driver, "divUsefulServiceValue");
+            AssertDivExistsAndContainsText(expectedMessage, driver, "divAnotherUsefulServiceValue");
+        }
+
+        protected IServiceScope _scope;
+        protected IServiceScope Scope
+        {
+            get
+            {
+                if (_scope == null)
+                {
+                    var scopeFactory = _systemUnderTest.Services.GetRequiredService<IServiceScopeFactory>();
+
+                    _scope = scopeFactory.CreateScope();
+                }
+
+                return _scope;
+            }
+        }
+
+        protected T CreateInstance<T>()
+        {
+            var provider = Scope.ServiceProvider;
+
+            var returnValue = provider.GetRequiredService<T>();
+
+            return returnValue;
         }
 
         private void InitializeWithTypeReplacements()
         {
-            _SystemUnderTest = new CustomWebApplicationFactory<Startup>(addDevelopmentConfigurations: builder =>
+            _systemUnderTest = new CustomWebApplicationFactory<Startup>(addDevelopmentConfigurations: builder =>
             {
                 builder.ConfigureTestServices(services =>
                 {
                     services.AddTransient<IUsefulService, FakeUsefulService>();
+                    AssertTypeIsRegistered<IAnotherUsefulService>(services);
+
+                    services.RemoveAll<IAnotherUsefulService>();
+                    services.RemoveAll<AnotherUsefulService>();
+
+                    AssertTypeIsNotRegistered<IAnotherUsefulService>(services);
+
+                    services.AddSingleton<IAnotherUsefulService, AnotherUsefulService>();
                 });
             });
         }
 
+        private static void AssertTypeIsRegistered<T>(IServiceCollection services)
+        {
+            var asServiceCollection = services as ServiceCollection;
+
+            if (asServiceCollection != null)
+            {
+                var match = (from temp in asServiceCollection
+                             where temp.ServiceType == typeof(T)
+                             select temp).FirstOrDefault();
+
+                Assert.IsNotNull(match, "Type should be registered.");
+            }
+        }
+
+        private static void AssertTypeIsNotRegistered<T>(IServiceCollection services)
+        {
+            var asServiceCollection = services as ServiceCollection;
+
+            if (asServiceCollection != null)
+            {
+                var match = (from temp in asServiceCollection
+                             where temp.ServiceType == typeof(T)
+                             select temp).FirstOrDefault();
+
+                Assert.IsNull(match, "Type should not be registered.");
+            }
+        }
+
         private static void AssertDivExistsAndContainsText(string expectedText, EdgeDriver driver, string id)
         {
-            var divThatShouldExistAlways = driver.FindElement(By.Id(id));
+            var element = driver.FindElement(By.Id(id));
 
-            Assert.IsNotNull(divThatShouldExistAlways, $"div '{id}' should not be null");
-            Assert.IsTrue(divThatShouldExistAlways.Displayed, $"div '{id}' should be displayed");
-            Assert.IsTrue(divThatShouldExistAlways.Enabled, $"div '{id}' should be enabled");
+            Assert.IsNotNull(element, $"element '{id}' should not be null");
+            Assert.IsTrue(element.Displayed, $"element '{id}' should be displayed");
+            Assert.IsTrue(element.Enabled, $"element '{id}' should be enabled");
 
-            Assert.IsTrue(divThatShouldExistAlways.Text.Contains(expectedText), 
-                $"div '{id}' should contain expected text");
+            Assert.IsTrue(element.Text.Contains(expectedText), 
+                $"element '{id}' should contain expected text. Actual: '{element.Text}'");
         }
 
         private string GetFullUrl(string url)
