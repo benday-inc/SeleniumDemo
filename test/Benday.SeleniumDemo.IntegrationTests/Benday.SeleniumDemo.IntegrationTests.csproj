@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="5.0.8" />
+    <PackageReference Include="Microsoft.Edge.SeleniumTools" Version="3.141.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.5" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.5" />
@@ -24,6 +25,12 @@
     <ProjectReference Include="..\..\src\Benday.SeleniumDemo.Api\Benday.SeleniumDemo.Api.csproj" />
     <ProjectReference Include="..\Benday.SeleniumDemo.UnitTests\Benday.SeleniumDemo.UnitTests.csproj" />
     <ProjectReference Include="..\..\src\Benday.SeleniumDemo.WebUi\Benday.SeleniumDemo.WebUi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="msedgedriver.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
