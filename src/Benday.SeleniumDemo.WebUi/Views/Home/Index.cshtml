@@ -1,5 +1,6 @@
 ﻿
 @inject Benday.SeleniumDemo.Api.IUsefulService _usefulService;
+@inject Benday.SeleniumDemo.Api.IAnotherUsefulService _anotherUsefulService;
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -21,6 +22,9 @@
 </div>
 <div id="divUsefulServiceValue">
     @_usefulService.UsefulValue
+</div>
+<div id="divAnotherUsefulServiceValue">
+    @_anotherUsefulService.GetMessage();
 </div>
 <script>
     function showHiddenDiv() {

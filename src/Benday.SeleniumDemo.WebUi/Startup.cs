@@ -27,6 +27,7 @@ namespace Benday.SeleniumDemo.WebUi
             services.AddControllersWithViews();
 
             services.AddTransient<IUsefulService, RealUsefulService>();
+            services.AddScoped<IAnotherUsefulService, AnotherUsefulService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
