@@ -68,9 +68,8 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
             var driverOptions = new EdgeOptions();
             driverOptions.UseChromium = true;
-            
-            // if there is an issue with the run in CI, comment the headless part
-            // driverOptions.AddArguments("--headless", "--ignore-certificate-errors");
+
+            driverOptions.AddArgument("headless");
 
             // using var driver = new EdgeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), driverOptions);
             using var driver = new EdgeDriver(driverOptions);
