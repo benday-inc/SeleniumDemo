@@ -14,10 +14,15 @@ namespace Benday.SeleniumDemo.IntegrationTests
         private readonly string _baseAddress = "https://localhost";
         private IWebHost _webHost;
         private Action<IWebHostBuilder> _addDevelopmentConfigs;
+        private readonly bool _verbose;
 
-        public CustomWebApplicationFactory(Action<IWebHostBuilder> addDevelopmentConfigurations = null)
+        public CustomWebApplicationFactory(
+            bool verbose = false, 
+            Action<IWebHostBuilder> addDevelopmentConfigurations = null)
         {
-            Console.WriteLine($"CustomWebApplicationFactory.ctor starting...");
+            _verbose = verbose;
+
+            WriteToLog($"CustomWebApplicationFactory.ctor starting...");
 
             if (addDevelopmentConfigurations != null)
             {
@@ -26,11 +31,19 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
             ClientOptions.BaseAddress = new Uri(_baseAddress);
 
-            Console.WriteLine($"CustomWebApplicationFactory.ctor calling CreateServer()...");
+            WriteToLog($"CustomWebApplicationFactory.ctor calling CreateServer()...");
 
             CreateServer(CreateWebHostBuilder());
 
-            Console.WriteLine($"CustomWebApplicationFactory.ctor exiting...");
+            WriteToLog($"CustomWebApplicationFactory.ctor exiting...");
+        }
+
+        private void WriteToLog(string message)
+        {
+            if (_verbose == true)
+            {
+                Console.WriteLine(message);
+            }
         }
 
         public string GetServerAddress()
@@ -60,30 +73,30 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
         protected override TestServer CreateServer(IWebHostBuilder builder)
         {
-            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() starting...");
+            WriteToLog($"CustomWebApplicationFactory.CreateServer() starting...");
 
-            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() calling builder.Build()...");
+            WriteToLog($"CustomWebApplicationFactory.CreateServer() calling builder.Build()...");
             _webHost = builder.Build();
 
-            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() calling webhost.start()...");
+            WriteToLog($"CustomWebApplicationFactory.CreateServer() calling webhost.start()...");
             _webHost.Start();
 
             TestServer returnValue = InitializeTestServer();
 
-            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() exiting...");
+            WriteToLog($"CustomWebApplicationFactory.CreateServer() exiting...");
 
             return returnValue;
         }
 
         private TestServer InitializeTestServer()
         {
-            Console.WriteLine($"CustomWebApplicationFactory.InitializeTestServer() creating instance of test server...");
+            WriteToLog($"CustomWebApplicationFactory.InitializeTestServer() creating instance of test server...");
 
             var builder = new WebHostBuilder().UseStartup<TStartup>();
 
-            Console.WriteLine($"CustomWebApplicationFactory.InitializeTestServer() invoking add dev config...");
+            WriteToLog($"CustomWebApplicationFactory.InitializeTestServer() invoking add dev config...");
             _addDevelopmentConfigs?.Invoke(builder);
-            Console.WriteLine($"CustomWebApplicationFactory.InitializeTestServer() invoked add dev config...");
+            WriteToLog($"CustomWebApplicationFactory.InitializeTestServer() invoked add dev config...");
 
             var returnValue = new TestServer(builder);
             // var returnValue = new TestServer(builder.UseStartup<TStartup>());
@@ -94,16 +107,16 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
         protected override IWebHostBuilder CreateWebHostBuilder()
         {
-            Console.WriteLine($"CustomWebApplicationFactory.CreateWebHostBuilder() starting...");
+            WriteToLog($"CustomWebApplicationFactory.CreateWebHostBuilder() starting...");
 
             var builder = WebHost.CreateDefaultBuilder(Array.Empty<string>());
             builder.UseStartup<TStartup>();
 
-            Console.WriteLine($"CustomWebApplicationFactory.CreateWebHostBuilder() invoking add dev config...");
+            WriteToLog($"CustomWebApplicationFactory.CreateWebHostBuilder() invoking add dev config...");
             _addDevelopmentConfigs?.Invoke(builder);
-            Console.WriteLine($"CustomWebApplicationFactory.CreateWebHostBuilder() invoked add dev config...");
+            WriteToLog($"CustomWebApplicationFactory.CreateWebHostBuilder() invoked add dev config...");
 
-            Console.WriteLine($"CustomWebApplicationFactory.CreateWebHostBuilder() starting...");
+            WriteToLog($"CustomWebApplicationFactory.CreateWebHostBuilder() starting...");
 
             return builder;
         }        
