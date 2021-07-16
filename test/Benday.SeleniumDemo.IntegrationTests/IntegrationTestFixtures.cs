@@ -40,7 +40,6 @@ namespace Benday.SeleniumDemo.IntegrationTests
             {
                 if (_systemUnderTest == null)
                 {
-                    // _SystemUnderTest = new WebApplicationFactory<Startup>();
                     _systemUnderTest = new CustomWebApplicationFactory<Startup>();
                 }
 
@@ -78,7 +77,8 @@ namespace Benday.SeleniumDemo.IntegrationTests
             var client = SystemUnderTest.CreateClient();
 
             var url = "home/index";
-            var fullyQualifiedUrl = GetFullUrl(url);
+            var fullyQualifiedUrl = 
+                SystemUnderTest.GetServerAddressForRelativeUrl(url);
 
             var driverOptions = new EdgeOptions();
             driverOptions.UseChromium = true;
@@ -112,7 +112,8 @@ namespace Benday.SeleniumDemo.IntegrationTests
             var client = SystemUnderTest.CreateClient();
 
             var url = "home/index";
-            var fullyQualifiedUrl = GetFullUrl(url);
+            var fullyQualifiedUrl =
+                SystemUnderTest.GetServerAddressForRelativeUrl(url);
 
             var driverOptions = new EdgeOptions();
             driverOptions.UseChromium = true;
@@ -229,13 +230,6 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
             Assert.IsTrue(element.Text.Contains(expectedText), 
                 $"element '{id}' should contain expected text. Actual: '{element.Text}'");
-        }
-
-        private string GetFullUrl(string url)
-        {
-            var baseAddr = SystemUnderTest.RootUri;
-
-            return $"{baseAddr}/{url}";
-        }
+        }        
     }
 }

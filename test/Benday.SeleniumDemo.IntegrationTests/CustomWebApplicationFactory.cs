@@ -32,7 +32,29 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
             Console.WriteLine($"CustomWebApplicationFactory.ctor exiting...");
         }
-        public string RootUri { get; private set; }
+
+        public string GetServerAddress()
+        {
+            var serverAddresses = _webHost.ServerFeatures.Get<IServerAddressesFeature>();
+
+            if (serverAddresses == null)
+            {
+                throw new InvalidOperationException($"Could not get instance of IServerAddressFeature.");
+            }
+
+            var addresses = serverAddresses.Addresses;
+
+            var returnValue = addresses.FirstOrDefault();
+
+            return returnValue;
+        }
+
+        public string GetServerAddressForRelativeUrl(string url)
+        {
+            var baseAddr = GetServerAddress();
+
+            return $"{baseAddr}/{url}";
+        }
 
         public TestServer TestServer { get; private set; }
 
@@ -46,8 +68,6 @@ namespace Benday.SeleniumDemo.IntegrationTests
             Console.WriteLine($"CustomWebApplicationFactory.CreateServer() calling webhost.start()...");
             _webHost.Start();
 
-            Console.WriteLine($"CustomWebApplicationFactory.CreateServer() getting addresses from webhost...");
-            RootUri = _webHost.ServerFeatures.Get<IServerAddressesFeature>().Addresses.LastOrDefault();
             TestServer returnValue = InitializeTestServer();
 
             Console.WriteLine($"CustomWebApplicationFactory.CreateServer() exiting...");
