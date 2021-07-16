@@ -23,14 +23,12 @@ namespace Benday.SeleniumDemo.IntegrationTests
         public void OnTestInitialize()
         {
             _systemUnderTest = null;
-            _scope = null;
         }
 
         [TestCleanup]
         public void OnTestCleanup()
         {
             _systemUnderTest?.Dispose();
-            _scope?.Dispose();
         }
 
         private CustomWebApplicationFactory<Startup> _systemUnderTest;
@@ -104,7 +102,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
             InitializeWithTypeReplacements();
 
             var expectedMessage = "testing";
-            var service = CreateInstance<IAnotherUsefulService>();
+            var service = SystemUnderTest.CreateInstance<IAnotherUsefulService>();
             service.ReturnValue = expectedMessage;
 
             var expectedText = "text that should always be there";
@@ -131,33 +129,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
             AssertDivExistsAndContainsText(expectedText, driver, "divTextThatIsAlwaysThere");
             AssertDivExistsAndContainsText("FAKE VALUE", driver, "divUsefulServiceValue");
             AssertDivExistsAndContainsText(expectedMessage, driver, "divAnotherUsefulServiceValue");
-        }
-
-        protected IServiceScope _scope;
-        protected IServiceScope Scope
-        {
-            get
-            {
-                if (_scope == null)
-                {
-                    // var scopeFactory = _systemUnderTest.Services.GetRequiredService<IServiceScopeFactory>();
-                    var scopeFactory = _systemUnderTest.TestServer.Services.GetRequiredService<IServiceScopeFactory>();
-
-                    _scope = scopeFactory.CreateScope();
-                }
-
-                return _scope;
-            }
-        }
-
-        protected T CreateInstance<T>()
-        {
-            var provider = Scope.ServiceProvider;
-
-            var returnValue = provider.GetRequiredService<T>();
-
-            return returnValue;
-        }
+        }        
 
         private AnotherUsefulService _instance;
 

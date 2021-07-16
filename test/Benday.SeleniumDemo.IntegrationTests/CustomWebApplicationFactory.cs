@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 
@@ -119,10 +120,49 @@ namespace Benday.SeleniumDemo.IntegrationTests
             WriteToLog($"CustomWebApplicationFactory.CreateWebHostBuilder() starting...");
 
             return builder;
-        }        
+        }
+
+        protected IServiceScope _scope;
+        protected IServiceScope Scope
+        {
+            get
+            {
+                if (_scope == null)
+                {
+                    var scopeFactory = 
+                        TestServer.Services.GetRequiredService<IServiceScopeFactory>();
+
+                    if (scopeFactory == null)
+                    {
+                        throw new InvalidOperationException("Could not create instance of IServiceScopeFactory.");
+                    }
+
+                    _scope = scopeFactory.CreateScope();
+                }
+
+                return _scope;
+            }
+        }
+
+        public T CreateInstance<T>()
+        {
+            var provider = Scope.ServiceProvider;
+
+            var returnValue = provider.GetRequiredService<T>();
+
+            return returnValue;
+        }
 
         protected override void Dispose(bool disposing)
         {
+            _addDevelopmentConfigs = null;
+
+            _scope?.Dispose();
+            _scope = null;
+            
+            _webHost?.Dispose();
+            _webHost = null;
+
             base.Dispose(disposing);
             if (disposing)
             {
