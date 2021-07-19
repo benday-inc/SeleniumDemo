@@ -70,14 +70,13 @@ namespace Benday.SeleniumDemo.IntegrationTests
         {
             var expectedText = "text that should always be there";
 
-            var client = SystemUnderTest.CreateClient();
+            _ = SystemUnderTest.CreateClient();
 
             var url = "home/index";
             var fullyQualifiedUrl = 
                 SystemUnderTest.GetServerAddressForRelativeUrl(url);
 
-            var driverOptions = new EdgeOptions();
-            driverOptions.UseChromium = true;
+            var driverOptions = new EdgeOptions() { UseChromium = true };
 
             driverOptions.AddArgument("headless");
 
@@ -102,14 +101,13 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
             var expectedText = "text that should always be there";
 
-            var client = SystemUnderTest.CreateClient();
+            _ = SystemUnderTest.CreateClient();
 
             var url = "home/index";
             var fullyQualifiedUrl =
                 SystemUnderTest.GetServerAddressForRelativeUrl(url);
 
-            var driverOptions = new EdgeOptions();
-            driverOptions.UseChromium = true;
+            var driverOptions = new EdgeOptions() { UseChromium = true };
 
             driverOptions.AddArgument("headless");
 
@@ -159,9 +157,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
         private static void AssertTypeIsRegistered<T>(IServiceCollection services)
         {
-            var asServiceCollection = services as ServiceCollection;
-
-            if (asServiceCollection != null)
+            if (services is ServiceCollection asServiceCollection)
             {
                 var match = (from temp in asServiceCollection
                              where temp.ServiceType == typeof(T)
@@ -169,19 +165,25 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
                 Assert.IsNotNull(match, "Type should be registered.");
             }
+            else
+            {
+                Assert.Fail("Problem checking type registration");
+            }
         }
 
         private static void AssertTypeIsNotRegistered<T>(IServiceCollection services)
         {
-            var asServiceCollection = services as ServiceCollection;
-
-            if (asServiceCollection != null)
+            if (services is ServiceCollection asServiceCollection)
             {
                 var match = (from temp in asServiceCollection
                              where temp.ServiceType == typeof(T)
                              select temp).FirstOrDefault();
 
                 Assert.IsNull(match, "Type should not be registered.");
+            }
+            else
+            {
+                Assert.Fail("Problem checking type registration");
             }
         }
 
