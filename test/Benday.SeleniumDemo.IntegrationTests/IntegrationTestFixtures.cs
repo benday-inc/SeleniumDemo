@@ -70,8 +70,6 @@ namespace Benday.SeleniumDemo.IntegrationTests
         {
             var expectedText = "text that should always be there";
 
-            _ = SystemUnderTest.CreateClient();
-
             var url = "home/index";
             var fullyQualifiedUrl = 
                 SystemUnderTest.GetServerAddressForRelativeUrl(url);
@@ -100,8 +98,6 @@ namespace Benday.SeleniumDemo.IntegrationTests
             service.ReturnValue = expectedMessage;
 
             var expectedText = "text that should always be there";
-
-            _ = SystemUnderTest.CreateClient();
 
             var url = "home/index";
             var fullyQualifiedUrl =
