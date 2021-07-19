@@ -66,9 +66,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
         }
         
         [TestMethod]
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task CallHomePage_UsingSeleniumAndWebApplicationFactory()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        public void CallHomePage_UsingSeleniumAndWebApplicationFactory()
         {
             var expectedText = "text that should always be there";
 
@@ -83,7 +81,6 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
             driverOptions.AddArgument("headless");
 
-            // using var driver = new EdgeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), driverOptions);
             using var driver = new EdgeDriver(driverOptions);
 
             // act
@@ -95,9 +92,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
         }
 
         [TestMethod]
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task CallHomePage_UsingSeleniumAndWebApplicationFactory_WithTypeReplacements()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        public void CallHomePage_UsingSeleniumAndWebApplicationFactory_WithTypeReplacements()
         {
             InitializeWithTypeReplacements();
 
@@ -118,7 +113,6 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
             driverOptions.AddArgument("headless");
 
-            // using var driver = new EdgeDriver(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), driverOptions);
             using var driver = new EdgeDriver(driverOptions);
 
             // act
@@ -132,7 +126,6 @@ namespace Benday.SeleniumDemo.IntegrationTests
         }        
 
         private AnotherUsefulService _instance;
-
         private AnotherUsefulService GetInstanceOfAnotherUsefulService(IServiceProvider arg)
         {
             if (_instance == null)

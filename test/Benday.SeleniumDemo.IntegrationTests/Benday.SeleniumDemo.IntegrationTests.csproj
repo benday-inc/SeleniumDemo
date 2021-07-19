@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Benday.SeleniumDemo.Api\Benday.SeleniumDemo.Api.csproj" />
-    <ProjectReference Include="..\Benday.SeleniumDemo.UnitTests\Benday.SeleniumDemo.UnitTests.csproj" />
     <ProjectReference Include="..\..\src\Benday.SeleniumDemo.WebUi\Benday.SeleniumDemo.WebUi.csproj" />
   </ItemGroup>
 
