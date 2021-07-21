@@ -146,9 +146,7 @@ namespace Benday.SeleniumDemo.IntegrationTests
 
                     services.AddSingleton<IAnotherUsefulService, AnotherUsefulService>(GetInstanceOfAnotherUsefulService);
                 });
-            });
-
-            Console.WriteLine($"InitializeWithTypeReplacements(): TestServer is null = {(_systemUnderTest.TestServer == null)}");
+            });            
         }
 
         private static void AssertTypeIsRegistered<T>(IServiceCollection services)
